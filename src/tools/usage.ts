@@ -1,11 +1,5 @@
-import type Database from 'better-sqlite3';
 import type { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import {
-  getDailyStats,
-  insertUsage,
-  recordSubmission,
-  forceDeleteSubmission,
-} from '../db.js';
+import type { UsageStore } from '../db.js';
 import { submitToSheets } from '../sheets.js';
 
 export const usageToolDefinitions: Tool[] = [
@@ -65,19 +59,18 @@ function err(message: string): CallToolResult {
 export async function handleUsageTool(
   name: string,
   args: Record<string, unknown>,
-  db: Database.Database
+  store: UsageStore
 ): Promise<CallToolResult> {
   const defaultEmail = process.env.DEFAULT_USER_EMAIL ?? 'unknown@example.com';
   const maxTokens = Number(process.env.MAX_TOKENS_PER_CALL ?? 1_000_000);
 
   if (name === 'log_usage') {
-    const email        = (args.email as string | undefined) ?? defaultEmail;
-    const model        = args.model as string;
+    const email         = (args.email as string | undefined) ?? defaultEmail;
+    const model         = args.model as string;
     const input_tokens  = Number(args.input_tokens);
     const output_tokens = Number(args.output_tokens);
-    const note         = args.note as string | undefined;
+    const note          = args.note as string | undefined;
 
-    // 입력 검증 (F-10)
     if (!model || typeof model !== 'string') return err('model은 필수 문자열입니다');
     if (!Number.isFinite(input_tokens) || input_tokens < 0)
       return err(`input_tokens는 0 이상의 숫자여야 합니다 (입력값: ${args.input_tokens})`);
@@ -86,7 +79,7 @@ export async function handleUsageTool(
     if (input_tokens + output_tokens > maxTokens)
       return err(`총 토큰(${input_tokens + output_tokens})이 한도(${maxTokens})를 초과했습니다`);
 
-    const id = insertUsage(db, { email, model, input_tokens, output_tokens, note });
+    const id = await store.insertUsage({ email, model, input_tokens, output_tokens, note });
     const total = input_tokens + output_tokens;
     return {
       content: [{
@@ -101,7 +94,7 @@ export async function handleUsageTool(
     const date  = args.date  as string | undefined;
     const limit = args.limit ? Number(args.limit) : 30;
 
-    const rows = getDailyStats(db, { email, date, limit });
+    const rows = await store.getDailyStats({ email, date, limit });
 
     if (rows.length === 0) {
       return { content: [{ type: 'text', text: '기록된 사용량이 없습니다.' }] };
@@ -126,17 +119,16 @@ export async function handleUsageTool(
     const date  = (args.date as string | undefined) ?? new Date().toISOString().slice(0, 10);
     const force = Boolean(args.force);
 
-    const rows = getDailyStats(db, { email, date });
+    const rows = await store.getDailyStats({ email, date });
 
     if (rows.length === 0) {
       return { content: [{ type: 'text', text: `${date} 날짜의 기록이 없습니다.` }] };
     }
 
-    // 중복 제출 방지 (F-08)
     if (force) {
-      forceDeleteSubmission(db, email, date);
+      await store.forceDeleteSubmission(email, date);
     }
-    const submission = recordSubmission(db, { email, date, rows_submitted: rows.length });
+    const submission = await store.recordSubmission({ email, date, rows_submitted: rows.length });
     if (!submission.ok) {
       return err(
         `${date} 날짜는 이미 제출되었습니다 (${submission.submittedAt}). 강제 재제출하려면 force: true 사용.`
@@ -146,9 +138,8 @@ export async function handleUsageTool(
     const webhookUrl = process.env.SHEETS_WEBHOOK_URL ?? '';
     const result = await submitToSheets(webhookUrl, rows);
 
-    // 제출 실패 시 submissions 이력 롤백
     if (!result.success) {
-      forceDeleteSubmission(db, email, date);
+      await store.forceDeleteSubmission(email, date);
       return err(`제출 실패: ${result.message} (시도: ${result.attempts ?? 1}회)`);
     }
 

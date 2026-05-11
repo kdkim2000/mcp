@@ -7,11 +7,11 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { getDb } from "./db.js";
+import { getStore } from "./db.js";
 import { usageToolDefinitions, handleUsageTool, isUsageTool } from "./tools/usage.js";
 import { sessionToolDefinitions, handleSessionTool, isSessionTool } from "./tools/session.js";
 
-const db = getDb();
+const store = getStore();
 
 const server = new Server(
   { name: "mcp-server", version: "0.1.0" },
@@ -47,7 +47,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 
   if (isUsageTool(name)) {
-    return handleUsageTool(name, args as Record<string, unknown>, db);
+    return handleUsageTool(name, args as Record<string, unknown>, store);
   }
 
   if (isSessionTool(name)) {

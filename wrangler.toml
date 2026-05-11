@@ -1,0 +1,17 @@
+name            = "mcp-server"
+main            = "src/worker.ts"
+compatibility_date = "2026-05-12"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding      = "DB"
+database_name = "mcp-usage"
+database_id  = "REPLACE_WITH_YOUR_DATABASE_ID"
+
+[vars]
+MAX_TOKENS_PER_CALL = "1000000"
+
+# Secrets (set via: npx wrangler secret put <KEY>)
+# API_KEY
+# DEFAULT_USER_EMAIL
+# SHEETS_WEBHOOK_URL

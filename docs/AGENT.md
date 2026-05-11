@@ -18,9 +18,11 @@
 1. log_session 호출 (작업 내용 기록)
    - title: 이번 대화에서 완료한 작업의 제목
    - summary: 무엇을 왜 했는지 2~4문장으로 요약
-   - files_changed: 생성/수정한 파일 목록
-   - key_decisions: 방식 선택, 라이브러리 선택 등 주요 결정 사항
+   - files_changed: 생성/수정한 파일 목록 (plan 파일 제외)
+   - key_decisions: 방식 선택, 라이브러리 선택 등 주요 결정 사항.
+     **plan 모드에서 결정된 아키텍처/기술 선택도 포함** (예: "Cloudflare Workers + D1 채택 (무료 티어, SQLite 호환)")
    - tags: 작업 종류 태그 (예: ["구현", "디버깅", "문서"])
+     plan 파일을 작성·수정한 세션이면 "계획" 태그 추가
 
 2. log_usage 호출 (토큰 사용량 기록)
    - model: 현재 모델명 (예: claude-sonnet-4-6)
@@ -89,6 +91,17 @@ log_usage 호출:
   - hook 자동 기록은 Bash 명령을 120자로 잘라 저장하지만, 그 안에 민감정보가 들어가면 그대로 기록됩니다
   - 민감 정보가 포함된 명령은 환경변수로 분리하여 실행하세요
 
+## plan 모드 파일 처리
+
+Claude Code의 plan 모드로 작성된 파일은 `C:\Users\kdkim2000\.claude\plans\` 에 저장됩니다.
+
+- hook이 이 경로에 대한 Write/Edit를 `Plan(Write)` / `Plan(Edit)` 레이블로 자동 기록합니다
+- `session-summarizer` 에이전트는 plan 파일을 읽어 `key_decisions`와 `summary`를 보강합니다
+- plan 파일 자체는 `files_changed`에 포함하지 않습니다 (프로젝트 소스 코드가 아님)
+- plan 기반 설계 결정은 실제 구현 여부와 무관하게 `key_decisions`에 기록할 수 있습니다
+
+---
+
 ## Sub-agent 위임 (선택)
 
 복잡한 추정/요약 작업은 `.claude/agents/` 의 sub-agent에 위임하세요:
@@ -96,5 +109,5 @@ log_usage 호출:
 | Sub-agent | 용도 |
 |-----------|------|
 | `token-estimator` | 대화 컨텍스트로부터 토큰 수 추정 |
-| `session-summarizer` | 대화 + hook 로그를 합쳐 `log_session` 인자 생성 |
+| `session-summarizer` | 대화 + hook 로그 + plan 파일을 합쳐 `log_session` 인자 생성 |
 | `report-validator` | 제출 전 통계 합리성 검증 |

@@ -8,6 +8,14 @@ import { fileURLToPath } from 'url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SESSIONS_DIR = join(ROOT, 'data', 'sessions');
+// Claude Code plan mode files are stored here
+const PLANS_DIR_WIN = 'C:\\Users\\kdkim2000\\.claude\\plans';
+const PLANS_DIR_POSIX = 'C:/Users/kdkim2000/.claude/plans';
+
+function isPlanFile(filePath) {
+  const norm = filePath.replace(/\\/g, '/');
+  return norm.includes('/.claude/plans/') || filePath.startsWith(PLANS_DIR_WIN);
+}
 
 function todayFile() {
   const date = new Date().toISOString().slice(0, 10);
@@ -34,10 +42,12 @@ function handleEvent(event) {
 
     if (tool === 'Edit') {
       const path = input.file_path ?? '?';
-      appendFileSync(file, `- \`${ts}\` **Edit** \`${path}\`\n`);
+      const label = isPlanFile(path) ? 'Plan(Edit)' : 'Edit';
+      appendFileSync(file, `- \`${ts}\` **${label}** \`${path}\`\n`);
     } else if (tool === 'Write') {
       const path = input.file_path ?? '?';
-      appendFileSync(file, `- \`${ts}\` **Write** \`${path}\`\n`);
+      const label = isPlanFile(path) ? 'Plan(Write)' : 'Write';
+      appendFileSync(file, `- \`${ts}\` **${label}** \`${path}\`\n`);
     } else if (tool === 'Bash') {
       const cmd = (input.command ?? '').slice(0, 120).replace(/\n/g, ' ');
       appendFileSync(file, `- \`${ts}\` **Bash** \`${cmd}\`\n`);

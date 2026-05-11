@@ -14,12 +14,32 @@ tools: Read, Grep, Glob, Bash
 
 1. **메인 에이전트가 전달한 대화 컨텍스트** — 사용자가 무엇을 요청했고 Claude가 어떻게 응답했는지
 2. **hook 자동 기록** — `data/sessions/YYYY-MM-DD.md` 의 PostToolUse 항목 (Edit/Write/Bash 호출 내역)
+3. **plan 모드 파일** — `C:\Users\kdkim2000\.claude\plans\*.md` 의 Claude Code plan 파일
 
-오늘 날짜의 파일이 있으면 먼저 읽으세요:
+오늘 날짜의 세션 파일이 있으면 먼저 읽으세요:
 ```bash
 date_today=$(date +%Y-%m-%d)
 cat data/sessions/${date_today}.md
 ```
+
+plan 파일도 확인하세요 (최근 3개, 수정 시각 순):
+```bash
+ls -t /c/Users/kdkim2000/.claude/plans/*.md 2>/dev/null | head -3
+```
+파일이 있으면 각각 읽어 **## Context**, **## 구현 단계**, **## Critical Files** 섹션을 추출합니다.
+
+### plan 파일에서 추출하는 정보
+
+| 섹션 | 활용 대상 |
+|------|----------|
+| `## Context` 또는 서두 요약 | `summary`에 왜 이 작업을 했는지 보완 |
+| `## 구현 단계` / `## Step N` | `key_decisions`에 설계 선택 추가 |
+| `## Critical Files` | `files_changed`에 대상 파일 보완 |
+| 파일 제목(파일명) | `tags`에 plan 관련 태그 추가 (예: `배포계획`, `Cloudflare`) |
+
+- hook 기록에 `Plan(Write)` 또는 `Plan(Edit)` 항목이 있으면 반드시 해당 plan 파일을 읽어야 합니다.
+- plan 파일에 기술된 결정이 이번 세션에서 실제로 구현되었다면 `key_decisions`에 포함하세요.
+- plan 파일 자체는 `files_changed`에 포함하지 않습니다 (소스 코드가 아님).
 
 ## 출력 형식
 
