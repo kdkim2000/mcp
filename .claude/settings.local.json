@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"E:\\\\apps\\\\mcp\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(dir \"E:\\\\apps\\\\mcp\")",
+      "Bash(dir E:\\\\\\\\apps\\\\\\\\mcp)",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\apps\\\\mcp\" -Recurse -Force 2>&1 | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\apps\" -Force 2>&1 | ForEach-Object { $_.FullName })"
+    ]
+  }
+}

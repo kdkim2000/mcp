@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node E:\\apps\\mcp\\scripts\\log-hook.mjs"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node E:\\apps\\mcp\\scripts\\log-hook.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}
