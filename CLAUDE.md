@@ -82,6 +82,8 @@ Webhook 생성 방법: `docs/ARCHITECTURE.md` 참고. 배포 절차: `docs/DEPLO
 
 - **hook 자동 기록**: Edit/Write/Bash tool 호출 및 Stop 이벤트 → `scripts/log-hook.mjs`
   - `C:\Users\kdkim2000\.claude\plans\` 경로의 plan 파일 변경은 `Plan(Edit)` / `Plan(Write)` 레이블로 구분
+  - Bash 명령 내 민감정보 자동 마스킹 → `[MASKED]` 치환 후 기록
+    - 대상: Bearer 토큰, `API_KEY=` 등 환경변수 대입, `echo "..." |` 파이프, `wrangler secret put`, `sk-`/`cfat_`/`ghp_` 토큰, Google Apps Script URL, 32자 이상 hex
 - **수동 기록**: `log_session` MCP tool 호출 → 날짜별 파일에 세션 요약 추가
 
 ## Sub-agents
