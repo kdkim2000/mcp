@@ -65,7 +65,7 @@ export async function handleSessionTool(
   const file = join(SESSIONS_DIR, `${date}.md`);
 
   if (!existsSync(file)) {
-    writeFileSync(file, `# Session Log — ${date}\n\n`);
+    writeFileSync(file, `# Session Log — ${date}\n\n`, 'utf8');
   }
 
   const tagLine = tags.length ? `\`${tags.join('` `')}\`` : '';
@@ -85,7 +85,7 @@ ${decisionsSection}
 
 `;
 
-  appendFileSync(file, entry);
+  appendFileSync(file, entry, 'utf8');
 
   return {
     content: [{

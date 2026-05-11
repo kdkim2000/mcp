@@ -1,12 +1,12 @@
 name            = "mcp-server"
 main            = "src/worker.ts"
-compatibility_date = "2026-05-12"
+compatibility_date = "2026-05-11"
 compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding      = "DB"
 database_name = "mcp-usage"
-database_id  = "REPLACE_WITH_YOUR_DATABASE_ID"
+database_id  = "4e1c10ee-bcf3-4a1f-b9e6-72d52dcbaa62"
 
 [vars]
 MAX_TOKENS_PER_CALL = "1000000"

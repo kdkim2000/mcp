@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node E:\\apps\\mcp\\scripts\\log-hook.mjs"
+            "command": "E:\\apps\\mcp\\scripts\\log-hook.cmd"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node E:\\apps\\mcp\\scripts\\log-hook.mjs"
+            "command": "E:\\apps\\mcp\\scripts\\log-hook.cmd"
           }
         ]
       }
