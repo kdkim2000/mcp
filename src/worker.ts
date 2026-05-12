@@ -9,6 +9,7 @@ import {
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { D1Store } from './db/d1.js';
 import { usageToolDefinitions, handleUsageTool, isUsageTool } from './tools/usage.js';
+import { dashboardHtml } from './dashboard.js';
 
 export interface Env {
   DB: D1Database;
@@ -71,7 +72,28 @@ function buildServer(store: D1Store, env: Env): Server {
 
 export default {
   async fetch(req: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
-    if (req.headers.get('Authorization') !== `Bearer ${env.API_KEY}`) {
+    const url = new URL(req.url);
+    const isAuthorized = req.headers.get('Authorization') === `Bearer ${env.API_KEY}`;
+
+    // GET /dashboard — public, no auth required
+    if (req.method === 'GET' && url.pathname === '/dashboard') {
+      return new Response(dashboardHtml(url.origin), {
+        headers: { 'content-type': 'text/html; charset=utf-8' },
+      });
+    }
+
+    // GET /api/stats — returns DailyStats[] JSON for the dashboard
+    if (req.method === 'GET' && url.pathname === '/api/stats') {
+      if (!isAuthorized) return new Response('Unauthorized', { status: 401 });
+      const limit = Math.min(parseInt(url.searchParams.get('limit') ?? '90', 10) || 90, 365);
+      const store = new D1Store(env.DB);
+      const stats = await store.getDailyStats({ email: env.DEFAULT_USER_EMAIL, limit });
+      return new Response(JSON.stringify(stats), {
+        headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' },
+      });
+    }
+
+    if (!isAuthorized) {
       return new Response('Unauthorized', { status: 401 });
     }
 
