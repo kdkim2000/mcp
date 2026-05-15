@@ -1,0 +1,164 @@
+/* =========================================================
+   OPUS-X Design System — Foundations (subset for Dashboard)
+   Color · Type · Spacing · Radius · Shadow · Motion
+   v1.1.3 (Samsung SDS · OPUS-X)
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&family=Roboto+Mono:wght@400;500;700&family=Sora:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* SEED COLORS */
+  --purple-25:#FAFAFF; --purple-50:#F4F3FF; --purple-100:#EBE9FE;
+  --purple-200:#D9D6FE; --purple-300:#BDB4FE; --purple-400:#9B8AFB;
+  --purple-500:#7F56D9; --purple-600:#6941C6; --purple-700:#53389E;
+  --purple-800:#42307D; --purple-900:#2F1C6A;
+
+  --yellow-25:#FEFDF0; --yellow-50:#FEFBE8; --yellow-100:#FEF7C3;
+  --yellow-200:#FEEE95; --yellow-300:#FDE272; --yellow-400:#FAC515;
+  --yellow-500:#EAAA08; --yellow-600:#A15C07; --yellow-700:#854A0E;
+  --yellow-800:#713B12; --yellow-900:#542C0D;
+
+  --gray-25:#FCFCFD; --gray-50:#F9FAFB; --gray-100:#F2F4F7;
+  --gray-200:#EAECF0; --gray-300:#D0D5DD; --gray-400:#98A2B3;
+  --gray-500:#667085; --gray-600:#475467; --gray-700:#344054;
+  --gray-800:#1D2939; --gray-900:#101828;
+
+  --blue-25:#F5FAFF; --blue-50:#EFF8FF; --blue-100:#D1E9FF;
+  --blue-200:#B2DDFF; --blue-300:#84CAFF; --blue-400:#53B1FD;
+  --blue-500:#2E90FA; --blue-600:#1570EF; --blue-700:#175CD3;
+  --blue-800:#1849A9; --blue-900:#194185;
+
+  --green-25:#F6FEF9; --green-50:#ECFDF3; --green-100:#D1FADF;
+  --green-200:#A6F4C5; --green-300:#6CE9A6; --green-400:#32D583;
+  --green-500:#12B76A; --green-600:#039855; --green-700:#027A48;
+  --green-800:#05603A; --green-900:#054F31;
+
+  --red-25:#FFFBFA; --red-50:#FEF3F2; --red-100:#FEE4E2;
+  --red-200:#FECDCA; --red-300:#FDA29B; --red-400:#F97066;
+  --red-500:#F04438; --red-600:#D92D20; --red-700:#B42318;
+  --red-800:#912018; --red-900:#7A271A;
+
+  --teal-500:#15B79E; --teal-600:#0E9384;
+
+  --color-black:#000; --color-white:#FFF;
+
+  /* CONTEXT (light theme) */
+  --fg-primary:var(--purple-600); --fg-primary-hover:var(--purple-700);
+  --fg-primary-disabled:var(--purple-300); --fg-primary-invert:var(--purple-300);
+  --fg-primary-accent:var(--purple-500);
+  --fg-neutral:var(--gray-600); --fg-neutral-hover:var(--gray-700);
+  --fg-neutral-disabled:var(--gray-300); --fg-neutral-invert:#fff;
+  --fg-neutral-accent:var(--gray-500);
+  --fg-secondary:var(--gray-500); --fg-tertiary:var(--gray-400);
+  --fg-highlight:var(--yellow-600); --fg-success:var(--green-600);
+  --fg-warning:var(--yellow-700); --fg-error:var(--red-600);
+  --fg-info:var(--blue-600); --fg-on-primary:#fff; --fg-on-neutral:#fff;
+
+  --bg-base:#fff; --bg-subtle:var(--gray-50); --bg-muted:var(--gray-100);
+  --bg-canvas:#F8F9FC; --bg-invert:var(--gray-900);
+  --bg-primary:var(--purple-600); --bg-primary-hover:var(--purple-700);
+  --bg-primary-tint:var(--purple-50); --bg-primary-tint-hover:var(--purple-100);
+  --bg-neutral-tint:var(--gray-50); --bg-neutral-tint-hover:var(--gray-100);
+  --bg-success-tint:var(--green-50); --bg-warning-tint:var(--yellow-50);
+  --bg-error-tint:var(--red-50); --bg-info-tint:var(--blue-50);
+
+  --border-primary:var(--purple-600); --border-primary-hover:var(--purple-700);
+  --border-neutral:var(--gray-300); --border-neutral-hover:var(--gray-400);
+  --border-subtle:var(--gray-200);
+
+  --font-sans:"Noto Sans KR","Noto Sans","Malgun Gothic",-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo",Arial,sans-serif;
+  --font-mono:"Roboto Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --font-display:"Sora","Samsung Sharp Sans","Noto Sans",-apple-system,BlinkMacSystemFont,sans-serif;
+
+  --fw-regular:400; --fw-medium:500; --fw-bold:700;
+
+  --fs-h1:38px; --lh-h1:48px; --fs-h2:30px; --lh-h2:40px;
+  --fs-h3:24px; --lh-h3:32px; --fs-h4:20px; --lh-h4:24px;
+  --fs-h5:16px; --lh-h5:20px;
+  --fs-xl:20px; --lh-xl:32px; --fs-lg:16px; --lh-lg:24px;
+  --fs-md:14px; --lh-md:20px; --fs-sm:12px; --lh-sm:16px;
+  --fs-xs:10px; --lh-xs:16px;
+
+  --space-0:0; --space-2xs:2px; --space-xs:4px; --space-sm:8px;
+  --space-md:12px; --space-lg:16px; --space-xl:24px; --space-2xl:32px;
+  --space-3xl:40px; --space-4xl:48px; --space-5xl:64px; --space-6xl:80px; --space-7xl:96px;
+
+  --radius-none:0; --radius-xs:2px; --radius-sm:4px; --radius-md:6px;
+  --radius-lg:8px; --radius-xl:12px; --radius-2xl:16px; --radius-3xl:20px; --radius-full:1000px;
+
+  --bw-1:1px; --bw-2:2px; --bw-4:4px;
+
+  --shadow-xs:0 1px 2px 0 rgba(16,24,40,.05);
+  --shadow-sm:0 1px 3px 0 rgba(16,24,40,.10),0 1px 2px 0 rgba(16,24,40,.06);
+  --shadow-md:0 4px 8px -2px rgba(16,24,40,.10),0 2px 4px -2px rgba(16,24,40,.06);
+  --shadow-lg:0 12px 16px -4px rgba(16,24,40,.08),0 4px 6px -2px rgba(16,24,40,.03);
+  --shadow-xl:0 20px 24px -4px rgba(16,24,40,.08),0 8px 8px -4px rgba(16,24,40,.03);
+  --shadow-2xl:0 24px 48px -12px rgba(16,24,40,.18);
+  --shadow-3xl:0 32px 64px -12px rgba(16,24,40,.14);
+
+  --ring-neutral:0 0 0 4px rgba(152,162,179,.25);
+  --ring-primary:0 0 0 4px rgba(127,86,217,.24);
+  --ring-error:0 0 0 4px rgba(240,68,56,.24);
+  --ring-success:0 0 0 4px rgba(18,183,106,.24);
+  --ring-warning:0 0 0 4px rgba(247,144,9,.24);
+
+  --opacity-disabled:.4; --opacity-hover:.08; --opacity-pressed:.16;
+
+  --ease-standard:cubic-bezier(.2,0,0,1);
+  --ease-emphasized:cubic-bezier(.2,0,0,1);
+  --ease-decelerate:cubic-bezier(0,0,0,1);
+  --ease-accelerate:cubic-bezier(.3,0,1,1);
+  --duration-fast:120ms; --duration-medium:200ms; --duration-slow:320ms;
+
+  --z-base:0; --z-raised:100; --z-dropdown:1000; --z-overlay:1100;
+  --z-modal:1200; --z-toast:1300; --z-tooltip:1400;
+}
+
+/* ─── DARK THEME OVERRIDES ─────────────────────────────────
+   Re-skinned semantic tokens. Seed palette is reused; only
+   the context/component-facing tokens flip.
+*/
+:root[data-theme="dark"] {
+  --fg-primary:var(--purple-300); --fg-primary-hover:var(--purple-200);
+  --fg-primary-accent:var(--purple-400);
+  --fg-neutral:#D6DAE3; --fg-neutral-hover:#EAECF0;
+  --fg-neutral-disabled:#4A5263; --fg-neutral-invert:#101828;
+  --fg-neutral-accent:#98A2B3;
+  --fg-secondary:#98A2B3; --fg-tertiary:#667085;
+  --fg-success:var(--green-400); --fg-warning:var(--yellow-300);
+  --fg-error:var(--red-400); --fg-info:var(--blue-300);
+
+  --bg-base:#161A24;          /* card */
+  --bg-canvas:#0F1117;        /* page */
+  --bg-subtle:#1C2030;
+  --bg-muted:#232838;
+  --bg-invert:#fff;
+  --bg-primary:var(--purple-500); --bg-primary-hover:var(--purple-400);
+  --bg-primary-tint:rgba(127,86,217,.16);
+  --bg-primary-tint-hover:rgba(127,86,217,.28);
+  --bg-neutral-tint:#1C2030; --bg-neutral-tint-hover:#232838;
+  --bg-success-tint:rgba(18,183,106,.14);
+  --bg-warning-tint:rgba(247,144,9,.14);
+  --bg-error-tint:rgba(240,68,56,.14);
+  --bg-info-tint:rgba(46,144,250,.14);
+
+  --border-neutral:#2A3142; --border-neutral-hover:#3A4258;
+  --border-subtle:#222838;
+  --border-primary:var(--purple-400);
+
+  --shadow-xs:0 1px 2px 0 rgba(0,0,0,.4);
+  --shadow-sm:0 1px 3px 0 rgba(0,0,0,.55),0 1px 2px 0 rgba(0,0,0,.4);
+  --shadow-md:0 4px 8px -2px rgba(0,0,0,.55),0 2px 4px -2px rgba(0,0,0,.35);
+  --shadow-lg:0 12px 16px -4px rgba(0,0,0,.5),0 4px 6px -2px rgba(0,0,0,.3);
+}
+
+html,body{
+  font-family:var(--font-sans);
+  font-size:var(--fs-md);
+  line-height:var(--lh-md);
+  color:var(--gray-900);
+  background:var(--bg-base);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+:root[data-theme="dark"] body{ color:#EAECF0; }
