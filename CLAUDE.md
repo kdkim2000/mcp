@@ -112,3 +112,4 @@ Webhook 생성 방법: `docs/ARCHITECTURE.md` 참고. 배포 절차: `docs/DEPLO
 | `docs/AGENT.md` | Claude Desktop 시스템 프롬프트 템플릿 |
 | `docs/SKILL.md` | 워크플로우 정의 |
 | `docs/DEPLOY.md` | Cloudflare Workers + D1 배포 단계별 가이드 |
+| `docs/CONNECT.md` | 타 프로젝트 / 타 PC 클라이언트 연결 가이드 |
