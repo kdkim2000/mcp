@@ -133,6 +133,190 @@ Claude Desktop 재시작 → 채팅창 하단 망치(🔨) 아이콘에서 tool 
 
 ---
 
+## Case D — 타 AI 코딩 도구 (Cursor, Windsurf 등)
+
+### MCP를 지원하는 도구
+
+아래 도구들은 MCP 프로토콜을 지원하므로 **Claude Code와 동일한 방식**으로 연결됩니다.
+
+| 도구 | MCP 설정 파일 |
+|------|--------------|
+| **Cursor** | `.cursor/mcp.json` (프로젝트) 또는 `~/.cursor/mcp.json` (전역) |
+| **Windsurf** | `~/.codeium/windsurf/mcp_config.json` |
+| **Continue.dev** (VS Code) | `~/.continue/config.json` → `mcpServers` 배열 |
+| **Zed** | `~/.config/zed/settings.json` → `context_servers` |
+
+**Cursor 예시** (`.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-cloud": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://mcp-server.kdkim2000.workers.dev",
+        "--header", "Authorization: Bearer <API_KEY>"
+      ]
+    }
+  }
+}
+```
+
+**Windsurf 예시** (`~/.codeium/windsurf/mcp_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-cloud": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://mcp-server.kdkim2000.workers.dev",
+        "--header", "Authorization: Bearer <API_KEY>"
+      ],
+      "env": { "MCP_API_KEY": "<API_KEY>" }
+    }
+  }
+}
+```
+
+설정 후 해당 도구를 재시작하면 `log_usage` tool이 사용 가능해집니다.
+
+---
+
+### MCP를 지원하지 않는 도구 (GitHub Copilot, JetBrains AI 등)
+
+MCP 프로토콜 없이도 **HTTP API 직접 호출**로 기록할 수 있습니다.  
+MCP 서버는 표준 JSON-RPC over HTTP이므로 `curl` 한 줄로 충분합니다.
+
+**세션 종료 후 수동 기록 (bash/zsh)**:
+
+```bash
+curl -s -X POST https://mcp-server.kdkim2000.workers.dev \
+  -H "Authorization: Bearer <API_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc":"2.0","id":1,"method":"tools/call",
+    "params":{"name":"log_usage","arguments":{
+      "model":"<모델명>",
+      "input_tokens": 20000,
+      "output_tokens": 5000,
+      "note":"<작업 요약>"
+    }}
+  }'
+```
+
+**PowerShell (Windows)**:
+
+```powershell
+$body = '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"log_usage","arguments":{"model":"gpt-4o","input_tokens":20000,"output_tokens":5000,"note":"Cursor 작업"}}}'
+Invoke-RestMethod -Uri "https://mcp-server.kdkim2000.workers.dev" `
+  -Method POST `
+  -Headers @{ "Authorization" = "Bearer <API_KEY>"; "Content-Type" = "application/json" } `
+  -Body $body
+```
+
+> **팁**: 자주 쓴다면 shell alias나 VS Code task로 등록해두면 편합니다.
+> ```bash
+> alias log-tokens='curl -s -X POST https://mcp-server.kdkim2000.workers.dev \
+>   -H "Authorization: Bearer <API_KEY>" -H "Content-Type: application/json" \
+>   -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"log_usage\",\"arguments\":{\"model\":\"$1\",\"input_tokens\":$2,\"output_tokens\":$3,\"note\":\"$4\"}}}"'
+> # 사용: log-tokens gpt-4o 15000 3000 "코드 리뷰"
+> ```
+
+---
+
+## 회사 프록시 / 방화벽 환경
+
+Cloudflare Workers는 표준 HTTPS(443포트)로 서빙되므로 대부분의 기업 프록시를 통과합니다.  
+단, `workers.dev` 도메인이 방화벽에서 차단된 경우 아래 방법을 사용합니다.
+
+### 방법 1 — 프록시 환경변수 설정 (가장 간단)
+
+`mcp-remote`는 Node.js 기반이므로 표준 프록시 환경변수를 따릅니다.
+
+**`.claude/settings.json` 또는 MCP 설정 파일에 `env` 추가**:
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-cloud": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://mcp-server.kdkim2000.workers.dev",
+        "--header", "Authorization: Bearer <API_KEY>"
+      ],
+      "env": {
+        "HTTPS_PROXY": "http://proxy.company.com:8080",
+        "NO_PROXY": "localhost,127.0.0.1,*.internal.company.com"
+      }
+    }
+  }
+}
+```
+
+`curl`도 동일하게 적용됩니다:
+
+```bash
+export https_proxy=http://proxy.company.com:8080
+curl -s -X POST https://mcp-server.kdkim2000.workers.dev ...
+```
+
+### 방법 2 — 회사 CA 인증서 추가 (SSL 인터셉션 환경)
+
+일부 기업은 HTTPS 트래픽을 인터셉트해 자체 CA로 재서명합니다. 이 경우 `NODE_EXTRA_CA_CERTS`로 회사 CA를 신뢰하도록 설정합니다.
+
+```json
+"env": {
+  "HTTPS_PROXY": "http://proxy.company.com:8080",
+  "NODE_EXTRA_CA_CERTS": "C:\\certs\\company-ca.crt"
+}
+```
+
+회사 CA 인증서는 IT 부서에 요청하거나 브라우저에서 내보낼 수 있습니다.
+
+### 방법 3 — workers.dev 도메인 차단 시: 자체 도메인 사용
+
+Cloudflare Workers에 사용자 정의 도메인을 연결하면 내부 allowlist에 등록할 수 있습니다.
+
+```
+# Cloudflare Dashboard → Workers & Pages → mcp-server → Settings → Domains
+# 예: mcp-api.yourcompany.com → mcp-server.kdkim2000.workers.dev 에 CNAME
+```
+
+이후 모든 설정에서 `workers.dev` URL 대신 사용자 정의 도메인을 사용합니다.
+
+### 방법 4 — 완전 폐쇄망: 내부 서버 자체 배포
+
+인터넷이 완전히 차단된 환경이라면 MCP 서버를 내부 인프라에 직접 배포합니다.
+
+```
+# Node.js + SQLite만으로 로컬 HTTP 서버 실행 가능 (D1 불필요)
+npm run dev  # stdio 모드 또는 http 모드로 직접 실행
+```
+
+자세한 절차는 [DEPLOY.md](./DEPLOY.md)를 참고하세요.
+
+---
+
+## 도구별 지원 요약
+
+| 도구 | MCP 지원 | 연결 방법 |
+|------|---------|----------|
+| Claude Desktop | ✅ 네이티브 | `claude_desktop_config.json` |
+| Claude Code | ✅ 네이티브 | `.claude/settings.json` |
+| Cursor | ✅ (0.43+) | `.cursor/mcp.json` |
+| Windsurf | ✅ | `~/.codeium/windsurf/mcp_config.json` |
+| Continue.dev | ✅ | `~/.continue/config.json` |
+| Zed | ✅ | `~/.config/zed/settings.json` |
+| GitHub Copilot | ❌ | HTTP API 직접 호출 (curl/PowerShell) |
+| JetBrains AI | ❌ | HTTP API 직접 호출 |
+| 기타 도구 | 모름 | MCP 설정 있으면 Case A와 동일, 없으면 curl |
+
+---
+
 ## 자동 토큰 기록 설정
 
 ### Claude Desktop — Custom Instructions
