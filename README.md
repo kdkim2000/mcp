@@ -318,18 +318,26 @@ curl https://mcp-server.<account>.workers.dev \
 
 **URL**: `https://mcp-server.kdkim2000.workers.dev/dashboard`
 
-- 인증 없이 접근 가능 (HTML 페이지 자체는 공개)
-- 페이지 접속 후 API Key 입력 → 자동으로 D1 데이터 로드
-- 입력한 API Key는 브라우저 `localStorage`에 저장됨
+- Gate 화면에서 API Key 입력 → 대시보드 진입 (Key는 `localStorage`에 저장)
+- 라이트 / 다크 테마 토글 (`localStorage` 유지)
+- 한국어 / 영어 언어 토글 (`localStorage` 유지)
+- Cloudflare Worker가 단일 HTML 파일로 서빙 — 외부 백엔드 없음
 
 ### 구성 요소
 
 | 영역 | 내용 |
 |------|------|
-| 요약 카드 | 오늘 / 이번 달 / 전체 누적 토큰 |
-| 일별 바 차트 | 최근 30일 날짜별 사용량 (Chart.js) |
-| 모델별 도넛 차트 | 모델 점유율 |
-| 상세 테이블 | 날짜 · 모델 · 입력 · 출력 · 합계 (최신순) |
+| KPI 카드 × 3 | 오늘 / 이번 달 / 전체 누적 토큰 · 스파크라인 · 전일/전월 델타 배지 |
+| 일별 에리어 차트 | 7d / 14d / 30d 범위 전환 · 인라인 SVG 스플라인 · 호버 툴팁 |
+| 모델별 도넛 차트 | 이번 달 모델 점유율 · 범례 목록 |
+| 상세 테이블 | 날짜 · 모델 · 입력 · 출력 · 합계 · 검색 · 페이저 |
+
+### 기술 스택
+
+- **React 18 + Babel Standalone** CDN — JSX 브라우저 내 트랜스파일
+- **Lucide Icons** CDN — 아이콘 (CDN 차단 시 graceful degradation)
+- **인라인 SVG 차트** — Chart.js 의존성 제거, 부드러운 카디널 스플라인
+- **AX Lab 디자인 시스템** (v1.1.3) — 퍼플 브랜드, 4pt 그리드, 완전한 CSS 토큰 레이어
 
 > **주의**: 대시보드는 D1(클라우드)의 데이터만 표시합니다. 로컬 SQLite 데이터는 반영되지 않습니다.
 
@@ -651,6 +659,30 @@ Claude Code의 PostToolUse/Stop hook을 활용해 코딩 세션을 자동 기록
 **hook 경로 버그 수정**
 - 원인: bash가 `\a`·`\m`·`\s`·`\l` 등을 escape sequence로 처리 → `E:\apps\mcp\scripts\...` → `E:appsmcpscripts...`로 변환
 - 해결: `node E:/apps/mcp/scripts/log-hook.mjs` (forward slash) — bash가 `/`를 escape 처리하지 않음
+
+### Phase 5 — AX Lab 디자인 시스템 대시보드 리디자인
+
+Claude Design으로 생성한 핸드오프 패키지를 기반으로 대시보드를 전면 재구축.
+
+**변경 내용**
+
+| 항목 | Phase 4 | Phase 5 |
+|------|---------|---------|
+| 기술 스택 | 바닐라 JS + Chart.js CDN | React 18 + Babel CDN + 인라인 SVG 차트 |
+| 디자인 시스템 | 단순 인디고 카드 | AX Lab v1.1.3 (퍼플 브랜드, 4pt 그리드, 전체 CSS 토큰) |
+| 테마 | 없음 | 라이트 / 다크 토글 (`data-theme="dark"`) |
+| 언어 | 한국어만 | KO / EN 토글 |
+| 인증 화면 | 모달 오버레이 | 전용 Gate 전체화면 컴포넌트 |
+| KPI 카드 | 단순 수치 | 스파크라인 + 델타 배지 |
+| 차트 | Chart.js 바 차트 | 인라인 SVG 에리어 차트 (카디널 스플라인) |
+
+**버그 수정 (빈 페이지)**
+- 원인: TypeScript 템플릿 리터럴 내 `\'` → HTML 출력 `'` 변환으로 JS 문자열 조기 종료 → Babel 구문 오류 → React 마운트 실패
+- 수정: 해당 문자열을 단일 인용 → 이중 인용으로 변경 (`"...browser's localStorage."`)
+
+**데이터 연동**
+- `/api/stats?limit=90` 응답을 클라이언트에서 `transformApiData()`로 변환 — API 변경 없음
+- `localStorage` 키: `opusx.mcp.apikey` / `opusx.mcp.lang` / `opusx.mcp.dark`
 
 ---
 
