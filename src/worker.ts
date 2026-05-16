@@ -114,6 +114,11 @@ export default {
       return new Response('Invalid JSON', { status: 400 });
     }
 
+    // Streamable HTTP: notifications have no 'id' and expect no response
+    if (!('id' in body)) {
+      return new Response(null, { status: 202 });
+    }
+
     const store = new D1Store(env.DB);
     const server = buildServer(store, env);
     const transport = new InProcessTransport();
